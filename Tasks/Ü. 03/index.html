@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+       <meta charset="utf-8"></meta>
+       <title>Apple Aktie</title>
+
+
+       <script src="jquery-3.2.1.min.js"></script>
+  <script language="javascript" type="text/javascript" src="flot/jquery.js"></script>
+  <script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
+
+
+       <script type="text/javascript">
+
+       //Read File
+$(document).ready(function() {
+        var Datum = [];
+        var Tief = [];
+        var Hoch = [];
+        var Tagesendwert = [];
+        var Handelsvolumen = [];
+
+
+    //fetch text file
+    $.get('apple.csv', function(data) {
+        //split on new lines
+        var lines = data.split(/[,;]/);
+
+
+
+       //Fill Data 
+
+        var a = 0;
+        var new_date;
+
+        for (var i = 5; i < lines.length; i++) {
+
+          if (a==0) {
+            //Only day is needed since Flot doesnt work otherwise.
+            new_date = (lines[i].split('.'));
+            Datum.push(new_date[0]);
+
+            a++;
+          }else if (a==1) {
+            //Add Date and the lowest stock price on this Date
+            Tief.push([Datum[Datum.length - 1],lines[i]]);
+          a++;
+        }else
+          if (a==2) {
+            //Add Date and the highest stock price on this Date
+            Hoch.push([Datum[Datum.length - 1],lines[i]]);
+          a++;
+        }else
+          if (a==3) {
+            //Add Date and the ending stock price on this Date
+            Tagesendwert.push([Datum[Datum.length - 1],lines[i]]);
+          a++;
+        }else
+          if (a==4) {
+            //Add Date and the total value of stocks sold on this Date
+            Handelsvolumen.push([Datum[Datum.length - 1],lines[i]]);
+            a= 0;
+          };
+
+        }
+
+        //Create Barchart
+        $.plot("#barchart", [
+          {label:"Handelsvolumen",
+          data: Handelsvolumen, 
+          bars: {show: true}}
+
+          ]);
+
+        //Create Linechart
+        $.plot("#linechart", [
+      { label: "Tiefstwerte", data: Tief, color: "red" },
+      { label: "Höchstwerte", data: Hoch, color : "green" },
+      { label: "Tagesendwert", data: Tagesendwert, color: "yellow" }
+    ]);
+
+    });
+});
+
+
+
+
+
+       
+
+
+    
+       </script>
+    </head>
+    <body>
+       <div id="linechart" style="width:600px;height:400px"></div>
+       <div id="barchart" style="width:600px;height:400px"></div>
+   </body>
+</html>
